@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="usuario">Nombre de Usuario</string>
+    <string name="contraseña">Contraseña</string>
+    <string name="login">Iniciar Sesion</string>
+    <string name="label_login">Inicio de Sesion</string>
+</resources>
