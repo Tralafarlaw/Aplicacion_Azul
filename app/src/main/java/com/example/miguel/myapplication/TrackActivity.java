@@ -9,7 +9,7 @@ import android.os.Bundle;
 
 public class TrackActivity extends AppCompatActivity {
     final long intervalo = 5000;
-    final Context context = getApplicationContext();
+    Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
