@@ -1,5 +1,6 @@
 package com.example.miguel.myapplication;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,39 +14,28 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 public class CheckPostReciver extends BroadcastReceiver {
+
     @Override
     public void onReceive(Context context, Intent intent) {
         new Proceso().execute();
-    }
-}
+    }}
 class Proceso extends AsyncTask<String, Void, String> {
+
     double lat,lon;
+    FusedLocationProviderClient mClient;
+
+
     @Override
     protected String doInBackground(String... strings) {
         //Manda aca la ubicacion cada 5 seg
+
+
         return null;
     }
 
 
-}
-class LocationActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
 }
