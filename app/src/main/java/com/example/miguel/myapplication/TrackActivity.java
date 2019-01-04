@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -13,8 +14,10 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -123,11 +126,14 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onLocationChanged(Location location) {
         //La Ubicacion Cambio (No Usar este Metodo) en el metodo anterior manda la ultima ubiccion conocida asi aunque no se mueva mandara la ultima ubicacion conocida al servidor
+        estado.setImageResource(R.drawable.verdeon);
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         //Cambio el estado o Proveedor del GPS la verdad no entiendo bien que hace
+        estado.setImageResource(R.drawable.naranjaalert);
+
     }
 
     @Override
@@ -140,5 +146,21 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     public void onProviderDisabled(String provider) {
         //Se Apago el GPS
         estado.setImageResource(R.drawable.rojooff);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(TrackActivity.this);
+
+        builder.setIcon(R.mipmap.ic_launcher).
+                setTitle("ERROR GPS").
+                setMessage("No se puede acceder a su ubicacion actual, es posible que este en una zona sin conexion").
+                setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(TrackActivity.this, "Tocado Aceptar", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
+            AlertDialog titulo = builder.create();
+            titulo.show();
     }
 }
