@@ -163,4 +163,15 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
             AlertDialog titulo = builder.create();
             titulo.show();
     }
+
+    public void onBackPressed() {
+        //super.onBackPressed();
+        Intent intent = new Intent(getApplicationContext(), TrackActivity.class);
+        startActivity(intent);
+
+
+
+
+    }
+
 }
