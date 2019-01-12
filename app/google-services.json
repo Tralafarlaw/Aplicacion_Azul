@@ -1,87 +1,35 @@
 {
   "project_info": {
-    "project_number": "324076828609",
-    "firebase_url": "https://button-e816f.firebaseio.com",
-    "project_id": "button-e816f",
-    "storage_bucket": "button-e816f.appspot.com"
+    "project_number": "916232045692",
+    "firebase_url": "https://mi-ubicacion-fce4a.firebaseio.com",
+    "project_id": "mi-ubicacion-fce4a",
+    "storage_bucket": "mi-ubicacion-fce4a.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:324076828609:android:bb30eabea2ef2395",
+        "mobilesdk_app_id": "1:916232045692:android:bb30eabea2ef2395",
         "android_client_info": {
           "package_name": "com.example.miguel.myapplication"
         }
       },
       "oauth_client": [
         {
-          "client_id": "324076828609-4u1lb4b06a9ma4v1mj11vnnvbn8bq5t1.apps.googleusercontent.com",
+          "client_id": "916232045692-n1ab4r5nkbia4vvc2gjn973q5obd5onl.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.miguel.myapplication",
-            "certificate_hash": "984a1e13b3827695d8b550e56d80159d4030aeda"
-          }
-        },
-        {
-          "client_id": "324076828609-0phbfj47fn5mm05uq0mp49gq8vl5rdev.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAXFO_DRCTP76EK_p5T-IMvchvAh-_tcwo"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "324076828609-0phbfj47fn5mm05uq0mp49gq8vl5rdev.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:324076828609:android:3be4053b2fdc5685",
-        "android_client_info": {
-          "package_name": "tralafarlaw.miguel.button"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "324076828609-8i8sdreenoe3ii1ghganhj8hkufjkfn9.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "tralafarlaw.miguel.button",
-            "certificate_hash": "849b92dbe7dcd2edb5356e3cdbf87f5bf2439421"
-          }
-        },
-        {
-          "client_id": "324076828609-r4o5p5m73u5ni9guoq3h3a9on4c0g31v.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "tralafarlaw.miguel.button",
             "certificate_hash": "2601072f21ee383acf5abf6cbea420fcd6a53202"
           }
         },
         {
-          "client_id": "324076828609-0phbfj47fn5mm05uq0mp49gq8vl5rdev.apps.googleusercontent.com",
+          "client_id": "916232045692-vv0o65nub0n7m7fc8bugi3gqbjq6tkg8.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAXFO_DRCTP76EK_p5T-IMvchvAh-_tcwo"
+          "current_key": "AIzaSyAvwwQZIWSgsMtpVjpowhWQudPpeR8IUB0"
         }
       ],
       "services": {
@@ -92,82 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "324076828609-0phbfj47fn5mm05uq0mp49gq8vl5rdev.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:324076828609:android:77ef93e23b6cc5f0",
-        "android_client_info": {
-          "package_name": "tralafarlaw.miguel.find"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "324076828609-0phbfj47fn5mm05uq0mp49gq8vl5rdev.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAXFO_DRCTP76EK_p5T-IMvchvAh-_tcwo"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:324076828609:android:c2ae16c44fe66703",
-        "android_client_info": {
-          "package_name": "tralafarlaw.miguel.test"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "324076828609-he2hgfn4nlf1l5mkii9pm9lkr8d39edb.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "tralafarlaw.miguel.test",
-            "certificate_hash": "849b92dbe7dcd2edb5356e3cdbf87f5bf2439421"
-          }
-        },
-        {
-          "client_id": "324076828609-0phbfj47fn5mm05uq0mp49gq8vl5rdev.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAXFO_DRCTP76EK_p5T-IMvchvAh-_tcwo"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "324076828609-0phbfj47fn5mm05uq0mp49gq8vl5rdev.apps.googleusercontent.com",
+              "client_id": "916232045692-vv0o65nub0n7m7fc8bugi3gqbjq6tkg8.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
