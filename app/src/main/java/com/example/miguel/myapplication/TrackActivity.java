@@ -13,6 +13,8 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +28,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -34,7 +37,8 @@ import java.util.TimerTask;
 
 public class TrackActivity extends AppCompatActivity implements LocationListener {
     final long intervalo = 5000;
-    final String user_name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+    final String user_mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+    final String user_name = user_mail.substring(0,user_mail.length()-10);
     boolean is_runing = false;
     Context context = this;
     LocationManager locationManager;
@@ -132,11 +136,17 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         if(loc==null){
             //mandar alerta de error de GPS
 
-            mReference.child("Blue").child("conductores").child(user_name).child("Status").setValue(2);
+            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
         }else{
+            DatabaseReference.CompletionListener list = new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                   // Toast.makeText(getApplicationContext(), "Exito", Toast.LENGTH_SHORT).show();
+                }
+            };
             //subir de forma regular al servidor
-            mReference.child("Blue").child("conductores").child("test_user_name").child("lat").setValue(loc.getLatitude());
-            mReference.child("Blue").child("conductores").child("test_user_name").child("lon").setValue(loc.getLongitude());
+            mReference.child("blue").child("conductores").child(user_name).child("Lat").setValue(loc.getLatitude(), list);
+            mReference.child("blue").child("conductores").child(user_name).child("Lon").setValue(loc.getLongitude(), list);
         }
     }
 
