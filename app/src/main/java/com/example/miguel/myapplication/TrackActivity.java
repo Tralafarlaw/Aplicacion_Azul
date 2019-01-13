@@ -16,6 +16,8 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -23,17 +25,24 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class TrackActivity extends AppCompatActivity implements LocationListener {
     final long intervalo = 5000;
+    final String user_name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
     boolean is_runing = false;
     Context context = this;
     LocationManager locationManager;
     FusedLocationProviderClient mProviderClient;
     ImageView estado;
+    DatabaseReference mReference;
+    Button StartButton;
+
 
 
     @Override
@@ -49,9 +58,16 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
     public void init() {
         estado = (ImageView) findViewById(R.id.estado);
+        StartButton = (Button) findViewById(R.id.button_start);
+        StartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //iniciar_envio_datos();
+                iniciar_thread();
+            }
+        });
 
-
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         /* se actualizará cada 100ms y 0 metros de cambio en la localización
             mientras más pequeños sean estos valores más frecuentes serán las actualizaciones */
@@ -65,7 +81,9 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, this);
+
+        mReference = FirebaseDatabase.getInstance().getReference();
     }
 
 
@@ -78,19 +96,14 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     }
 
     public void iniciar_thread() {
-        new Thread(new Runnable() {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                try {
-                    while (is_runing) {
-                        enviar_ultima_ubicacion();
-                        Thread.sleep(intervalo);
-                    }
-                } catch (Exception e) {
-
-                }
+                enviar_ultima_ubicacion();
+                boolean b = handler.postDelayed(this, intervalo);
             }
-        }).start();
+        }, 0);
 
     }
 
@@ -118,8 +131,12 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     public void subir_al_servidor(Location loc){
         if(loc==null){
             //mandar alerta de error de GPS
+
+            mReference.child("Blue").child("conductores").child(user_name).child("Status").setValue(2);
         }else{
             //subir de forma regular al servidor
+            mReference.child("Blue").child("conductores").child("test_user_name").child("lat").setValue(loc.getLatitude());
+            mReference.child("Blue").child("conductores").child("test_user_name").child("lon").setValue(loc.getLongitude());
         }
     }
 
