@@ -9,4 +9,7 @@
     <string name="recuperacion">Se Envio un Correo de Recueracion a la direccion que indico pro favor revise su bandeja de entrada y sigua las instrucciones</string>
     <string name="eroor_recupercaion">Error, Por favor revise si la direccion de correo esta correctamente escrita y si dispone de una conexion de Internet</string>
     <string name="ruta">/blue/conductores/s</string>
+    <string name="textView5">Conductor:</string>
+    <string name="textView6">Placa:</string>
+
 </resources>

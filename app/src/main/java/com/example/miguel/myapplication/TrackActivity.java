@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -46,6 +47,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     ImageView estado;
     DatabaseReference mReference;
     Button StartButton;
+    TextView txt4;
 
 
 
@@ -55,6 +57,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         setContentView(R.layout.activity_track);
         init();
         mProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        txt4 = (TextView) findViewById(R.id.textView4);
         iniciar_thread();
 
 
@@ -154,26 +157,29 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     public void onLocationChanged(Location location) {
         //La Ubicacion Cambio (No Usar este Metodo) en el metodo anterior manda la ultima ubiccion conocida asi aunque no se mueva mandara la ultima ubicacion conocida al servidor
         estado.setImageResource(R.drawable.verdeon);
+        txt4.setText("Estado: ON");
+
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         //Cambio el estado o Proveedor del GPS la verdad no entiendo bien que hace
         estado.setImageResource(R.drawable.naranjaalert);
-
+        txt4.setText("Estado: ALERT");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
         //Se Encendio El GPS
         estado.setImageResource(R.drawable.verdeon);
+        txt4.setText("Estado: ON");
     }
 
     @Override
     public void onProviderDisabled(String provider) {
         //Se Apago el GPS
         estado.setImageResource(R.drawable.rojooff);
-
+        txt4.setText("Estado: OFF");
         AlertDialog.Builder builder = new AlertDialog.Builder(TrackActivity.this);
 
         builder.setIcon(R.mipmap.ic_launcher).
