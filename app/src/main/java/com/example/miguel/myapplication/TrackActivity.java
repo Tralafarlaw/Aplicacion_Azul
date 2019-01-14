@@ -57,9 +57,10 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     ImageView estado;
     DatabaseReference mReference;
     Button StartButton;
-    MapView map;
-    Marker mk;
-    TextView Nombre, Matricula, txt2, txt3;
+    Button btn;
+
+
+    TextView Nombre, Matricula, txt2, txt3, txt4;
 
 
     @Override
@@ -72,6 +73,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
         txt2 = (TextView) findViewById(R.id.textView2);
         txt3 = (TextView) findViewById(R.id.textView3);
+        txt4 = (TextView) findViewById(R.id.textView4);
 
         mReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -93,6 +95,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
             }
         });
+
 
     }
 
@@ -123,11 +126,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, this);
 
-        map = (MapView) findViewById(R.id.map);
-        map.setTileSource(TileSourceFactory.MAPNIK);
-        final IMapController driver = map.getController();
-        map.setBuiltInZoomControls(true);
-        map.setMultiTouchControls(true);
+
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -140,10 +139,14 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
             return;
         }
 
-        mk = new Marker(map);
-        mk.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        driver.setZoom(9.5);
-        map.getOverlays().add(mk);
+        final Button btn = (Button) findViewById(R.id.button_start);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent it = new Intent(getApplicationContext(), mapaosm.class);
+                startActivity(it);
+            }
+        });
 
         mReference = FirebaseDatabase.getInstance().getReference();
     }
@@ -202,12 +205,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onLocationChanged(Location location) {
         //La Ubicacion Cambio (No Usar este Metodo) en el metodo anterior manda la ultima ubiccion conocida asi aunque no se mueva mandara la ultima ubicacion conocida al servidor
-        Marker i = (Marker) map.getOverlays().get(0);
-        i.setPosition(new GeoPoint(location));
-        String vel = String.valueOf((int)location.getSpeed()*3.6);
-        i.setTitle(vel+" Km/h");
-        map.getController().setCenter(i.getPosition());
-        map.invalidate();
+        txt4.setText("Estado: ON");
 
 
         estado.setImageResource(R.drawable.verdeon);
@@ -216,6 +214,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         //Cambio el estado o Proveedor del GPS la verdad no entiendo bien que hace
+        txt4.setText("Estado: ERRROR GPS");
         estado.setImageResource(R.drawable.naranjaalert);
 
     }
@@ -223,12 +222,14 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onProviderEnabled(String provider) {
         //Se Encendio El GPS
+        txt4.setText("Estado: ON");
         estado.setImageResource(R.drawable.verdeon);
     }
 
     @Override
     public void onProviderDisabled(String provider) {
         //Se Apago el GPS
+        txt4.setText("Estado: OFF");
         estado.setImageResource(R.drawable.rojooff);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(TrackActivity.this);
