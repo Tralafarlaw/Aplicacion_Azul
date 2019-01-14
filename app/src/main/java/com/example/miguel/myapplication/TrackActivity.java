@@ -13,13 +13,11 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -31,11 +29,16 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+
+import org.osmdroid.api.IMapController;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -51,43 +54,17 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     ImageView estado;
     DatabaseReference mReference;
     Button StartButton;
-    TextView txt4;
-
-    TextView txt2;
-    TextView txt3;
-
-
+    MapView map;
+    Marker mk;
+    TextView Nombre, Matricula;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track);
-        txt2 = (TextView) findViewById(R.id.textView2);
-        txt3 = (TextView) findViewById(R.id.textView3);
         init();
         mProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        txt4 = (TextView) findViewById(R.id.textView4);
         iniciar_thread();
-        mReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String name = dataSnapshot.child("blue").child("conductores").child(user_name).child("Nombre").getValue(String.class);
-                txt2.setText(name);
-
-                String placa = dataSnapshot.child("blue").child("conductores").child(user_name).child("Placa").getValue(String.class);
-                txt3.setText(placa);
-
-                }
-
-
-
-
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
 
 
     }
@@ -119,16 +96,29 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, this);
 
+        map = (MapView) findViewById(R.id.map);
+        map.setTileSource(TileSourceFactory.MAPNIK);
+        final IMapController driver = map.getController();
+        map.setBuiltInZoomControls(true);
+        map.setMultiTouchControls(true);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        mk = new Marker(map);
+        mk.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        driver.setZoom(9.5);
+        map.getOverlays().add(mk);
+
         mReference = FirebaseDatabase.getInstance().getReference();
-    }
-
-
-    public void iniciar_envio_datos() {
-        //con este metodo se inicia un proceso en segundo plano que manda los datos cada 5 segundos
-        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent it = new Intent(context, CheckPostReciver.class);
-        PendingIntent pit = PendingIntent.getBroadcast(context, 0, it, 0);
-        manager.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), intervalo, pit);
     }
 
     public void iniciar_thread() {
@@ -140,8 +130,6 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 boolean b = handler.postDelayed(this, intervalo);
             }
         }, 0);
-
-
 
     }
 
@@ -187,30 +175,35 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onLocationChanged(Location location) {
         //La Ubicacion Cambio (No Usar este Metodo) en el metodo anterior manda la ultima ubiccion conocida asi aunque no se mueva mandara la ultima ubicacion conocida al servidor
-        estado.setImageResource(R.drawable.verdeon);
-        txt4.setText("Estado: ON");
+        Marker i = (Marker) map.getOverlays().get(0);
+        i.setPosition(new GeoPoint(location));
+        String vel = String.valueOf((int)location.getSpeed()*3.6);
+        i.setTitle(vel+" Km/h");
+        map.getController().setCenter(i.getPosition());
+        map.invalidate();
 
+
+        estado.setImageResource(R.drawable.verdeon);
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         //Cambio el estado o Proveedor del GPS la verdad no entiendo bien que hace
         estado.setImageResource(R.drawable.naranjaalert);
-        txt4.setText("Estado: ALERT");
+
     }
 
     @Override
     public void onProviderEnabled(String provider) {
         //Se Encendio El GPS
         estado.setImageResource(R.drawable.verdeon);
-        txt4.setText("Estado: ON");
     }
 
     @Override
     public void onProviderDisabled(String provider) {
         //Se Apago el GPS
         estado.setImageResource(R.drawable.rojooff);
-        txt4.setText("Estado: OFF");
+
         AlertDialog.Builder builder = new AlertDialog.Builder(TrackActivity.this);
 
         builder.setIcon(R.mipmap.ic_launcher).
@@ -239,4 +232,3 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     }
 
 }
-
