@@ -29,9 +29,11 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -39,6 +41,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
+import org.w3c.dom.Text;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -56,7 +59,8 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     Button StartButton;
     MapView map;
     Marker mk;
-    TextView Nombre, Matricula;
+    TextView Nombre, Matricula, txt2, txt3;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,29 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         mProviderClient = LocationServices.getFusedLocationProviderClient(this);
         iniciar_thread();
 
+        txt2 = (TextView) findViewById(R.id.textView2);
+        txt3 = (TextView) findViewById(R.id.textView3);
+
+        mReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String name = dataSnapshot.child("blue").child("conductores").child(user_name).child("Nombre").getValue(String.class);
+                txt2.setText(name);
+
+                String placa = dataSnapshot.child("blue").child("conductores").child(user_name).child("Placa").getValue(String.class);
+                txt3.setText(placa);
+
+            }
+
+
+
+
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
