@@ -8,14 +8,7 @@ public class User {
     public String Placa;
     public int Status;
 
-    public User(String dueño, Double lat, Double lon, String nombre, String placa, int status) {
-        Dueño = dueño;
-        this.lat = lat;
-        this.lon = lon;
-        Nombre = nombre;
-        Placa = placa;
-        Status = status;
-    }
+
 
     public String getDueño() {
         return Dueño;
