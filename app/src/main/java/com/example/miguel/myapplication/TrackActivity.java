@@ -18,7 +18,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.Time;
 import android.view.View;
+import android.view.ViewDebug;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -190,6 +192,10 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
             mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
         }else{
+            Time hoy = new Time(Time.getCurrentTimezone());
+            hoy.setToNow();
+            String fecha = Integer.toString(hoy.hour) + ":" + Integer.toString(hoy.minute) + ":" + Integer.toString(hoy.second);
+
             DatabaseReference.CompletionListener list = new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
@@ -197,6 +203,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 }
             };
             //subir de forma regular al servidor
+            mReference.child("blue").child("conductores").child(user_name).child("Hora").setValue(fecha, list);
             mReference.child("blue").child("conductores").child(user_name).child("Lat").setValue(loc.getLatitude(), list);
             mReference.child("blue").child("conductores").child(user_name).child("Lon").setValue(loc.getLongitude(), list);
         }

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".TrackActivity">
 
+
     <android.support.v7.widget.CardView
         android:id="@+id/cardView2"
         android:layout_width="334dp"
