@@ -5,4 +5,8 @@
     <color name="colorPrimaryLight">#76d275</color>
     <color name="colorAccent">#5633CC</color>
     <color name="textPrimary">#000000</color>
+    <color name="graylight">#fafafa</color>
+    <color name="startblue">#09c6df</color>
+    <color name="endblue">#0bcce6</color>
+
 </resources>

@@ -62,7 +62,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     Button btn;
 
 
-    TextView Nombre, Matricula, txt2, txt3, txt4;
+    TextView Nombre, Matricula, txt2, txt3, txt4, txt5, txt6;
 
 
     @Override
@@ -76,6 +76,8 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         txt2 = (TextView) findViewById(R.id.textView2);
         txt3 = (TextView) findViewById(R.id.textView3);
         txt4 = (TextView) findViewById(R.id.textView4);
+        txt5 = (TextView) findViewById(R.id.textView5);
+        txt6 = (TextView) findViewById(R.id.textView6);
 
         mReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -85,6 +87,12 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
                 String placa = dataSnapshot.child("blue").child("conductores").child(user_name).child("Placa").getValue(String.class);
                 txt3.setText(placa);
+
+
+                txt5.setText(user_mail);
+
+                String telefono = dataSnapshot.child("blue").child("conductores").child(user_name).child("Telefono").getValue(String.class);
+                txt6.setText(telefono);
 
             }
 
