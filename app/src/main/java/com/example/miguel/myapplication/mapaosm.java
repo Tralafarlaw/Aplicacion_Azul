@@ -43,7 +43,7 @@ public class mapaosm extends AppCompatActivity implements LocationListener {
 
         mk = new Marker(map);
         mk.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        driver.setZoom(9.5);
+        driver.setZoom(19.5);
         map.getOverlays().add(mk);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);

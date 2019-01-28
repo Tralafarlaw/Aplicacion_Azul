@@ -79,7 +79,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         txt5 = (TextView) findViewById(R.id.textView5);
         txt6 = (TextView) findViewById(R.id.textView6);
 
-        mReference.addValueEventListener(new ValueEventListener() {
+        mReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String name = dataSnapshot.child("blue").child("conductores").child(user_name).child("Nombre").getValue(String.class);
@@ -96,17 +96,12 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
             }
 
-
-
-
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-
-
+        onStatusChanged("",1, new Bundle());
     }
 
     public void init() {
@@ -220,29 +215,23 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onLocationChanged(Location location) {
         //La Ubicacion Cambio (No Usar este Metodo) en el metodo anterior manda la ultima ubiccion conocida asi aunque no se mueva mandara la ultima ubicacion conocida al servidor
-        txt4.setText("Estado: ON");
-
-
-        estado.setImageResource(R.drawable.verdeon);
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         //Cambio el estado o Proveedor del GPS la verdad no entiendo bien que hace
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        else
-        {
-            txt4.setText("Estado: ERRROR GPS");
-            estado.setImageResource(R.drawable.naranjaalert);
+        if(status == LocationProvider.AVAILABLE){
+            txt4.setText("Encendido");
+            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
+            estado.setImageResource(R.drawable.verde_on);
+        }else if (status == LocationProvider.TEMPORARILY_UNAVAILABLE){
+            txt4.setText("No Disponible \n Temporalmente");
+            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
+            estado.setImageResource(R.drawable.naranja_alert);
+        }else if (status == LocationProvider.OUT_OF_SERVICE){
+            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
+            txt4.setText("Fuera de Servicio");
+            estado.setImageResource(R.drawable.rojo_off);
         }
 
 
@@ -251,14 +240,16 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onProviderEnabled(String provider) {
         //Se Encendio El GPS
-        txt4.setText("Estado: ON");
+        txt4.setText("Encendido");
+        mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
         estado.setImageResource(R.drawable.verdeon);
     }
 
     @Override
     public void onProviderDisabled(String provider) {
         //Se Apago el GPS
-        txt4.setText("Estado: OFF");
+        txt4.setText("Apagado");
+        mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(3);
         estado.setImageResource(R.drawable.rojooff);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(TrackActivity.this);
@@ -280,12 +271,6 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
     public void onBackPressed() {
         //super.onBackPressed();
-        Intent intent = new Intent(getApplicationContext(), TrackActivity.class);
-        startActivity(intent);
-
-
-
-
     }
 
 }
