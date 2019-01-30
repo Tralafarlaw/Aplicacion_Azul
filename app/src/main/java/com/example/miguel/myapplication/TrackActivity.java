@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -59,9 +60,9 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     ImageView estado;
     DatabaseReference mReference;
     Button StartButton;
-    Button btn;
+    Button TranButton, Descon;
 
-
+    int ini_tran, ok;
     TextView Nombre, Matricula, txt2, txt3, txt4, txt5, txt6;
 
 
@@ -69,6 +70,10 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track);
+
+        TranButton = (Button) findViewById(R.id.btn2);
+        Descon = (Button) findViewById(R.id.btn3);
+
         init();
         mProviderClient = LocationServices.getFusedLocationProviderClient(this);
         iniciar_thread();
@@ -78,6 +83,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         txt4 = (TextView) findViewById(R.id.textView4);
         txt5 = (TextView) findViewById(R.id.textView5);
         txt6 = (TextView) findViewById(R.id.textView6);
+
 
         mReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -94,6 +100,16 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 String telefono = dataSnapshot.child("blue").child("conductores").child(user_name).child("Telefono").getValue(String.class);
                 txt6.setText(telefono);
 
+                int tranmsimision = dataSnapshot.child("blue").child("conductores").child(user_name).child("Transmision").getValue(Integer.class);
+                ini_tran = tranmsimision;
+
+                int solicitud = dataSnapshot.child("blue").child("conductores").child(user_name).child("Solicitud").getValue(Integer.class);
+                ok = solicitud;
+
+
+
+
+
             }
 
             @Override
@@ -106,6 +122,44 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
     public void init() {
         estado = (ImageView) findViewById(R.id.estado);
+
+
+        TranButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(ini_tran == 0)
+                {
+                    Descon.setVisibility(View.VISIBLE);
+                    txt4.setText("Encendido");
+                    mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
+                    estado.setImageResource(R.drawable.verde_on);
+                    TranButton.setText("TRABAJANDO !");
+                    ini_tran = 1;
+
+                }
+                else
+                {
+
+                }
+
+
+            }
+        });
+        Descon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(-1);
+                txt4.setText("Esperando...");
+
+
+            }
+        });
+
+
+
+
+
         StartButton = (Button) findViewById(R.id.button_start);
         StartButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,9 +260,15 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 }
             };
             //subir de forma regular al servidor
-            mReference.child("blue").child("conductores").child(user_name).child("Hora").setValue(fecha, list);
-            mReference.child("blue").child("conductores").child(user_name).child("Lat").setValue(loc.getLatitude(), list);
-            mReference.child("blue").child("conductores").child(user_name).child("Lon").setValue(loc.getLongitude(), list);
+
+            if(ini_tran == 1)
+            {
+                mReference.child("blue").child("conductores").child(user_name).child("Hora").setValue(fecha, list);
+                mReference.child("blue").child("conductores").child(user_name).child("Lat").setValue(loc.getLatitude(), list);
+                mReference.child("blue").child("conductores").child(user_name).child("Lon").setValue(loc.getLongitude(), list);
+            }
+
+            mReference.child("blue").child("conductores").child(user_name).child("Transmision").setValue(ini_tran, list);
         }
     }
 
@@ -220,19 +280,31 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         //Cambio el estado o Proveedor del GPS la verdad no entiendo bien que hace
-        if(status == LocationProvider.AVAILABLE){
-            txt4.setText("Encendido");
-            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
-            estado.setImageResource(R.drawable.verde_on);
-        }else if (status == LocationProvider.TEMPORARILY_UNAVAILABLE){
-            txt4.setText("No Disponible \n Temporalmente");
-            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
-            estado.setImageResource(R.drawable.naranja_alert);
-        }else if (status == LocationProvider.OUT_OF_SERVICE){
-            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
-            txt4.setText("Fuera de Servicio");
-            estado.setImageResource(R.drawable.rojo_off);
+
+        if(ini_tran == 1)
+        {
+            //TranButton.setText("Trabajando!");
+            if(status == LocationProvider.AVAILABLE){
+                txt4.setText("Encendido");
+                mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
+                estado.setImageResource(R.drawable.verde_on);
+            }else if (status == LocationProvider.TEMPORARILY_UNAVAILABLE){
+                txt4.setText("No Disponible \n Temporalmente");
+                mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
+                estado.setImageResource(R.drawable.naranja_alert);
+            }else if (status == LocationProvider.OUT_OF_SERVICE){
+                mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
+                txt4.setText("Fuera de Servicio");
+                estado.setImageResource(R.drawable.rojo_off);
+            }
         }
+        else
+        {
+            txt4.setText("FUERA DE SERVICIO");
+            estado.setImageResource(R.drawable.plomo);
+        }
+
+
 
 
     }
@@ -240,33 +312,53 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onProviderEnabled(String provider) {
         //Se Encendio El GPS
-        txt4.setText("Encendido");
-        mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
-        estado.setImageResource(R.drawable.verdeon);
+        if(ini_tran == 1)
+        {
+           // TranButton.setText("Trabajando!");
+            txt4.setText("Encendido");
+            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
+            estado.setImageResource(R.drawable.verdeon);
+        }
+
+        else
+        {
+            txt4.setText("FUERA DE SERVICIO");
+            estado.setImageResource(R.drawable.plomo);
+        }
     }
 
     @Override
     public void onProviderDisabled(String provider) {
         //Se Apago el GPS
-        txt4.setText("Apagado");
-        mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(3);
-        estado.setImageResource(R.drawable.rojooff);
+        if(ini_tran == 1)
+        {
+            //TranButton.setText("Trabajando!");
+            txt4.setText("Apagado");
+            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(3);
+            estado.setImageResource(R.drawable.rojooff);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(TrackActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(TrackActivity.this);
 
-        builder.setIcon(R.mipmap.ic_launcher).
-                setTitle("ERROR GPS").
-                setMessage("No se puede acceder a su ubicacion actual, es posible que este en una zona sin conexion").
-                setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(TrackActivity.this, "Tocado Aceptar", Toast.LENGTH_SHORT).show();
-                    }
-                });
+            builder.setIcon(R.mipmap.ic_launcher).
+                    setTitle("ERROR GPS").
+                    setMessage("No se puede acceder a su ubicacion actual, es posible que este en una zona sin conexion").
+                    setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(TrackActivity.this, "Tocado Aceptar", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
 
             AlertDialog titulo = builder.create();
             titulo.show();
+        }
+        else
+        {
+            txt4.setText("FUERA DE SERVICIO");
+            estado.setImageResource(R.drawable.plomo);
+        }
+
     }
 
     public void onBackPressed() {
