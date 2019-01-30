@@ -62,7 +62,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     Button StartButton;
     Button TranButton, Descon;
 
-    int ini_tran, ok;
+    int ini_tran, ok, status;
     TextView Nombre, Matricula, txt2, txt3, txt4, txt5, txt6;
 
 
@@ -73,6 +73,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
         TranButton = (Button) findViewById(R.id.btn2);
         Descon = (Button) findViewById(R.id.btn3);
+        Descon.setVisibility(View.INVISIBLE);
 
         init();
         mProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -85,6 +86,14 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         txt6 = (TextView) findViewById(R.id.textView6);
 
 
+
+
+        onStatusChanged("",1, new Bundle());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         mReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -100,16 +109,6 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 String telefono = dataSnapshot.child("blue").child("conductores").child(user_name).child("Telefono").getValue(String.class);
                 txt6.setText(telefono);
 
-                int tranmsimision = dataSnapshot.child("blue").child("conductores").child(user_name).child("Transmision").getValue(Integer.class);
-                ini_tran = tranmsimision;
-
-                int solicitud = dataSnapshot.child("blue").child("conductores").child(user_name).child("Solicitud").getValue(Integer.class);
-                ok = solicitud;
-
-
-
-
-
             }
 
             @Override
@@ -117,7 +116,34 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
             }
         });
-        onStatusChanged("",1, new Bundle());
+
+        mReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+
+                int solicitud = dataSnapshot.child("blue").child("conductores").child(user_name).child("Solicitud").getValue(Integer.class);
+                ok = solicitud;
+
+                if(dataSnapshot.child("blue").child("conductores").child(user_name).child("Status").getValue(Integer.class) == -1)
+                {
+                    if(ok == 1)
+                    {
+                        Descon.setVisibility(View.INVISIBLE);
+                        txt4.setText("DESCANSANDO");
+                        mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(0);
+                        estado.setImageResource(R.drawable.plomo);
+                        TranButton.setText("INICIAR TRANSMISION");
+                        ini_tran = 0;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void init() {
@@ -131,11 +157,12 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 if(ini_tran == 0)
                 {
                     Descon.setVisibility(View.VISIBLE);
-                    txt4.setText("Encendido");
-                    mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
-                    estado.setImageResource(R.drawable.verde_on);
+                    txt4.setText("Conectando...");
+                    //mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
+                    //estado.setImageResource(R.drawable.verde_on);
                     TranButton.setText("TRABAJANDO !");
                     ini_tran = 1;
+
 
                 }
                 else
@@ -152,7 +179,6 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(-1);
                 txt4.setText("Esperando...");
 
-
             }
         });
 
@@ -160,6 +186,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
 
 
+/*
         StartButton = (Button) findViewById(R.id.button_start);
         StartButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,7 +195,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 iniciar_thread();
             }
         });
-
+*/
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         /* se actualizará cada 100ms y 0 metros de cambio en la localización
@@ -281,7 +308,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     public void onStatusChanged(String provider, int status, Bundle extras) {
         //Cambio el estado o Proveedor del GPS la verdad no entiendo bien que hace
 
-        if(ini_tran == 1)
+        if(ini_tran != 0)
         {
             //TranButton.setText("Trabajando!");
             if(status == LocationProvider.AVAILABLE){
@@ -312,7 +339,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onProviderEnabled(String provider) {
         //Se Encendio El GPS
-        if(ini_tran == 1)
+        if(ini_tran != 0)
         {
            // TranButton.setText("Trabajando!");
             txt4.setText("Encendido");
@@ -330,7 +357,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onProviderDisabled(String provider) {
         //Se Apago el GPS
-        if(ini_tran == 1)
+        if(ini_tran != 0)
         {
             //TranButton.setText("Trabajando!");
             txt4.setText("Apagado");
