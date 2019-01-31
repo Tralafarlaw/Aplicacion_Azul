@@ -132,6 +132,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                         Descon.setVisibility(View.INVISIBLE);
                         txt4.setText("DESCANSANDO");
                         mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(0);
+                        mReference.child("blue").child("conductores").child(user_name).child("Solicitud").setValue(0);
                         estado.setImageResource(R.drawable.plomo);
                         TranButton.setText("INICIAR TRANSMISION");
                         ini_tran = 0;
