@@ -158,8 +158,8 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 {
                     Descon.setVisibility(View.VISIBLE);
                     txt4.setText("Conectando...");
-                    //mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
-                    //estado.setImageResource(R.drawable.verde_on);
+                    mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
+                    estado.setImageResource(R.drawable.verde_on);
                     TranButton.setText("TRABAJANDO !");
                     ini_tran = 1;
 
@@ -271,7 +271,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
     }
     public void subir_al_servidor(Location loc){
-        if(loc==null){
+        if(loc==null && ok != -1){
             //mandar alerta de error de GPS
 
             mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
@@ -308,7 +308,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     public void onStatusChanged(String provider, int status, Bundle extras) {
         //Cambio el estado o Proveedor del GPS la verdad no entiendo bien que hace
 
-        if(ini_tran != 0)
+        if(ini_tran != 0 && ok != -1)
         {
             //TranButton.setText("Trabajando!");
             if(status == LocationProvider.AVAILABLE){
@@ -339,7 +339,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onProviderEnabled(String provider) {
         //Se Encendio El GPS
-        if(ini_tran != 0)
+        if(ini_tran != 0 && ok != -1)
         {
            // TranButton.setText("Trabajando!");
             txt4.setText("Encendido");
@@ -357,7 +357,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onProviderDisabled(String provider) {
         //Se Apago el GPS
-        if(ini_tran != 0)
+        if(ini_tran != 0 && ok != -1)
         {
             //TranButton.setText("Trabajando!");
             txt4.setText("Apagado");
