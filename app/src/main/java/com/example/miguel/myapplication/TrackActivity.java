@@ -117,15 +117,15 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
             }
         });
 
-        mReference.addValueEventListener(new ValueEventListener() {
+        mReference.child("blue").child("conductores").child(user_name).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
 
-                int solicitud = dataSnapshot.child("blue").child("conductores").child(user_name).child("Solicitud").getValue(Integer.class);
+                int solicitud = dataSnapshot.child("Solicitud").getValue(Integer.class);
                 ok = solicitud;
 
-                if(dataSnapshot.child("blue").child("conductores").child(user_name).child("Status").getValue(Integer.class) == -1)
+                if(dataSnapshot.child("Status").getValue(Integer.class) == -1)
                 {
                     if(ok == 1)
                     {
@@ -163,7 +163,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                     estado.setImageResource(R.drawable.verde_on);
                     TranButton.setText("TRABAJANDO !");
                     ini_tran = 1;
-
+                    iniciar_servicio();
 
                 }
                 else
@@ -237,7 +237,14 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
         mReference = FirebaseDatabase.getInstance().getReference();
     }
-
+    public void iniciar_servicio (){
+        Intent newIntent = new Intent(context, CheckPostReciver.class);
+        PendingIntent pendingIntent = PendingIntent.getService(context, 1, newIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), intervalo,
+                pendingIntent);
+    }
     public void iniciar_thread() {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
