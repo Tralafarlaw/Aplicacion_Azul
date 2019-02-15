@@ -60,8 +60,10 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     ImageView estado;
     DatabaseReference mReference;
     Button StartButton;
+    AlarmManager manager;
     Button TranButton, Descon;
-
+    Intent newIntent;
+    PendingIntent pendingIntent;
     int ini_tran, ok, status;
     TextView Nombre, Matricula, txt2, txt3, txt4, txt5, txt6;
 
@@ -70,43 +72,46 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track);
-
+        newIntent = new Intent(getBaseContext(), CheckPostReciver.class);
         TranButton = (Button) findViewById(R.id.btn2);
         Descon = (Button) findViewById(R.id.btn3);
         Descon.setVisibility(View.INVISIBLE);
-
         init();
-        mProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        iniciar_thread();
-
-        txt2 = (TextView) findViewById(R.id.textView2);
-        txt3 = (TextView) findViewById(R.id.textView3);
-        txt4 = (TextView) findViewById(R.id.textView4);
-        txt5 = (TextView) findViewById(R.id.textView5);
-        txt6 = (TextView) findViewById(R.id.textView6);
-
-
-
-
-        onStatusChanged("",1, new Bundle());
     }
 
     @Override
     protected void onStart() {
+
         super.onStart();
+        mReference.child("Status").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                int st = dataSnapshot.getValue(Integer.class);
+                if(st == -1){
+                    detener_servicio();
+                }else {
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         mReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String name = dataSnapshot.child("blue").child("conductores").child(user_name).child("Nombre").getValue(String.class);
+                String name = dataSnapshot.child("Nombre").getValue(String.class);
                 txt2.setText(name);
 
-                String placa = dataSnapshot.child("blue").child("conductores").child(user_name).child("Placa").getValue(String.class);
+                String placa = dataSnapshot.child("Placa").getValue(String.class);
                 txt3.setText(placa);
 
 
                 txt5.setText(user_mail);
 
-                String telefono = dataSnapshot.child("blue").child("conductores").child(user_name).child("Telefono").getValue(String.class);
+                String telefono = dataSnapshot.child("Telefono").getValue(String.class);
                 txt6.setText(telefono);
 
             }
@@ -117,7 +122,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
             }
         });
 
-        mReference.child("blue").child("conductores").child(user_name).addValueEventListener(new ValueEventListener() {
+        mReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -149,8 +154,13 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
 
     public void init() {
         estado = (ImageView) findViewById(R.id.estado);
-
-
+        mProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        txt2 = (TextView) findViewById(R.id.textView2);
+        txt3 = (TextView) findViewById(R.id.textView3);
+        txt4 = (TextView) findViewById(R.id.textView4);
+        txt5 = (TextView) findViewById(R.id.textView5);
+        txt6 = (TextView) findViewById(R.id.textView6);
+        onStatusChanged("",1, new Bundle());
         TranButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -159,12 +169,11 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
                 {
                     Descon.setVisibility(View.VISIBLE);
                     txt4.setText("Conectando...");
-                    mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
+                    mReference.child("Status").setValue(1);
                     estado.setImageResource(R.drawable.verde_on);
                     TranButton.setText("TRABAJANDO !");
                     ini_tran = 1;
                     iniciar_servicio();
-
                 }
                 else
                 {
@@ -177,55 +186,19 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         Descon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(-1);
+                mReference.child("Solicitud").setValue(1);
                 txt4.setText("Esperando...");
 
             }
         });
-
-
-
-
-
-/*
-        StartButton = (Button) findViewById(R.id.button_start);
-        StartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //iniciar_envio_datos();
-                iniciar_thread();
-            }
-        });
-*/
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         /* se actualizará cada 100ms y 0 metros de cambio en la localización
             mientras más pequeños sean estos valores más frecuentes serán las actualizaciones */
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, this);
-
-
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-
         final Button btn = (Button) findViewById(R.id.button_start);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -235,76 +208,26 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
             }
         });
 
-        mReference = FirebaseDatabase.getInstance().getReference();
+        mReference = FirebaseDatabase.getInstance().getReference().child("blue").child("conductores").child(user_name);
+        mReference.child("Status").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue(Integer.class)==-1){
+                    detener_servicio();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
     public void iniciar_servicio (){
-        Intent newIntent = new Intent(context, CheckPostReciver.class);
-        PendingIntent pendingIntent = PendingIntent.getService(context, 1, newIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), intervalo,
-                pendingIntent);
+        startService(newIntent);
     }
-    public void iniciar_thread() {
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                enviar_ultima_ubicacion();
-                boolean b = handler.postDelayed(this, intervalo);
-            }
-        }, 0);
-
-    }
-
-    public void enviar_ultima_ubicacion() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mProviderClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // location es la ultima ubicacion conocida
-                        subir_al_servidor(location);
-                    }
-                });
-
-    }
-    public void subir_al_servidor(Location loc){
-        if(loc==null && ok != -1){
-            //mandar alerta de error de GPS
-
-            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
-        }else{
-            Time hoy = new Time(Time.getCurrentTimezone());
-            hoy.setToNow();
-            String fecha = Integer.toString(hoy.hour) + ":" + Integer.toString(hoy.minute) + ":" + Integer.toString(hoy.second);
-
-            DatabaseReference.CompletionListener list = new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-                   // Toast.makeText(getApplicationContext(), "Exito", Toast.LENGTH_SHORT).show();
-                }
-            };
-            //subir de forma regular al servidor
-
-            if(ini_tran == 1)
-            {
-                mReference.child("blue").child("conductores").child(user_name).child("Hora").setValue(fecha, list);
-                mReference.child("blue").child("conductores").child(user_name).child("Lat").setValue(loc.getLatitude(), list);
-                mReference.child("blue").child("conductores").child(user_name).child("Lon").setValue(loc.getLongitude(), list);
-            }
-
-            mReference.child("blue").child("conductores").child(user_name).child("Transmision").setValue(ini_tran, list);
-        }
+    public void detener_servicio (){
+        stopService(newIntent);
     }
 
     @Override
@@ -321,14 +244,14 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
             //TranButton.setText("Trabajando!");
             if(status == LocationProvider.AVAILABLE){
                 txt4.setText("Encendido");
-                mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
+               // mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
                 estado.setImageResource(R.drawable.verde_on);
             }else if (status == LocationProvider.TEMPORARILY_UNAVAILABLE){
                 txt4.setText("No Disponible \n Temporalmente");
-                mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
+               // mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
                 estado.setImageResource(R.drawable.naranja_alert);
             }else if (status == LocationProvider.OUT_OF_SERVICE){
-                mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
+               // mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(2);
                 txt4.setText("Fuera de Servicio");
                 estado.setImageResource(R.drawable.rojo_off);
             }
@@ -338,10 +261,6 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
             txt4.setText("FUERA DE SERVICIO");
             estado.setImageResource(R.drawable.plomo);
         }
-
-
-
-
     }
 
     @Override
@@ -351,7 +270,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         {
            // TranButton.setText("Trabajando!");
             txt4.setText("Encendido");
-            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(1);
+            //mReference.child("Status").setValue(1);
             estado.setImageResource(R.drawable.verdeon);
         }
 
@@ -369,7 +288,7 @@ public class TrackActivity extends AppCompatActivity implements LocationListener
         {
             //TranButton.setText("Trabajando!");
             txt4.setText("Apagado");
-            mReference.child("blue").child("conductores").child(user_name).child("Status").setValue(3);
+            //mReference.child("Status").setValue(3);
             estado.setImageResource(R.drawable.rojooff);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(TrackActivity.this);
